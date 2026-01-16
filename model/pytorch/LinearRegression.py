@@ -19,7 +19,7 @@ data = fetch_california_housing()
 X, y = data.data, data.target
 
 
-X_train, y_train, X_test, y_test = train_test_split(
+X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
@@ -49,4 +49,71 @@ train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False)
 
 
+
+# 4. Linear Regression Model
+
+class LinearRegressionModel(nn.Module):
+    def __init__(self, n_features):
+        super().__init__()
+        self.linear = nn.Linear(n_features, 1)
+
+    def forward(self, x):
+        return self.linear(x)
+    
+
+model = LinearRegressionModel(n_features=X_train.shape[1])
+
+
+# 5. Loss & Optimizer
+
+criterion = nn.MSELoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+
+
+# 6. Training Loop (Explicit)
+
+epochs = 100
+
+for epoch in range(epochs):
+    model.train()
+    epoch_loss = 0.0
+
+
+    for X_batch, y_batch in train_loader:
+        optimizer.zero_grad()
+
+        predictions = model(X_batch)
+        loss = criterion(predictions, y_batch)
+
+        loss.backward()
+        optimizer.step()
+
+        epoch_loss += loss.item() * X_batch.size(0)
+
+    epoch_loss /= len(train_loader.dataset)
+
+    if (epoch + 1) % 10 == 0:
+        print(f"Epoch [{epoch+1}/{epochs}] - Train MSE: {epoch_loss:.4f}")
+
+# 7. Evaluation (No Grad)
+
+model.eval()
+test_loss = 0.0
+
+with torch.no_grad():
+    for X_batch, y_batch in test_loader:
+        predictions = model(X_batch)
+        loss = criterion(predictions, y_batch)
+        test_loss += loss.item() * X_batch.size(0)
+
+test_loss /= len(test_loader.dataset)
+print(f"\nTest MSE: {test_loss:.4f}")
+
+# 8. Inspect Learned Weights
+
+weights = model.linear.weight.data.numpy()
+bias = model.linear.bias.data.item()
+
+print("\nLearned weights:", weights)
+print("Learned bias:", bias)
 
