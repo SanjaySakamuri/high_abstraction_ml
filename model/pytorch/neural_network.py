@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset. DataLoader
+from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import StandardScaler
 
 data = np.loadtxt("YearPredictionMSD.txt", delimiter=",")
@@ -10,7 +10,7 @@ y = data[:,0]
 X = data[:, 1:]
 
 X_train, X_test = X[:463715], X[463715:]
-y_train, y_test = y[:46715], X[463715:]
+y_train, y_test = y[:463715], y[463715:]
 
 # Without scaling gradients explode !!!
 
@@ -41,7 +41,7 @@ test_loader = DataLoader(test_ds, batch_size=1024)
 
 class MSDNet(nn.Module):
   def __init__(self, input_dim):
-    suer().__init__()
+    super().__init__()
 
     self.net = nn.Sequential(
         nn.Linear(input_dim, 256),
@@ -63,6 +63,49 @@ class MSDNet(nn.Module):
   def forward(self, x):
     return self.net(x)
 
+# Loss & Optimizer
+
+model = MSDNet(input_dim=90)
 
 
+criterion = nn.MSELoss()
+optimizer = torch.optim.AdamW(
+    model.parameters(),
+    lr = 3e-4,
+    weight_decay=1e-4
+)
+
+
+def train_epoch(model, loader):
+  model.train()
+  total_loss = 0
+
+  for Xb, yb in loader:
+    optimizer.zero_grad()
+    preds = model(Xb)
+    loss = criterion(preds, yb)
+    loss.backward()
+    optimizer.step()
+    total_loss += loss.item() * len(Xb)
+
+  return total_loss / len(loader.dataset)
+
+def eval_epoch(model, loader):
+  model.eval()
+  total_loss = 0
+
+  with torch.no_grad():
+    for Xb, yb in loader:
+      preds = model(Xb)
+      loss = criterion(preds, yb)
+      total_loss += loss.item() * len(Xb)
+
+    return total_loss / len(loader.dataset)
+
+for epoch in range(30):
+  train_mse = train_epoch(model, train_loader)
+  test_mse = eval_epoch(model, test_loader)
+
+  if epoch % 5 == 0:
+    print(f"Epoch {epoch:02d} | Train RMSE: {train_mse**0.5:.2f} | Test RMSE: {test_mse**0.5:.2f}")
 
