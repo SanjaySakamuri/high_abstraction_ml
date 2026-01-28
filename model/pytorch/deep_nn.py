@@ -17,3 +17,15 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state = 42
 )
 scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test  = scaler.transform(X_test)
+
+X_train = torch.tensor(X_train, dtype=torch.float32)
+y_train = torch.tensor(y_train, dtype=torch.float32).view(-1,1) # Reshape for compatibility
+
+X_test = torch.tensor(X_test, dtype=torch.float32)
+y_test =torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
+
+
+## Scaling is done or else gradients will explode
+
