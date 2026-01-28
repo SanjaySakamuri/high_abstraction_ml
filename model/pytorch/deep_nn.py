@@ -29,11 +29,11 @@ y_test =torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
 
 ## Scaling is done or else gradients will explode
 
-class Housing(nn.Module):
+class HousingNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(8, 128  # Wide layer to capture complex patterns
+            nn.Linear(8, 128),  #Wide layer to capture complex patterns
             nn.ReLU(), # ReLU activation for non-linearity
 
             nn.Linear(128, 64),
@@ -48,3 +48,35 @@ class Housing(nn.Module):
     def forward(self, x):
         return self.net(x)
     
+model = HousingNN()
+
+criterion = nn.MSELoss()
+optimizer = optim.Adam(
+    model.parameters(),
+    lr = 1e-3,
+    weight_decay=1e-4 # L2 regularization
+)
+
+epochs = 500
+
+for epoch in range(epochs):
+    model.train()
+
+    optimizer.zero_grad()
+    predictions = model(X_train)
+    loss = criterion(predictions, y_train)
+
+    loss.backward()
+    optimizer.step()
+
+
+    if (epoch + 1) % 20 == 0:
+        print(f"Epoch [{epoch+1}/{epochs}] | Train MSE: {loss.item():.4f}")
+
+
+model.eval()
+with torch.no_grad():
+    test_preds = model(X_test)
+
+rmse = np.sqrt(mean_squared_error(y_test.numpy(), test_preds.numpy()))
+print(f"Test RMSE: {rmse:.4f}")
