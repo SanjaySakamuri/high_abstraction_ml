@@ -29,3 +29,22 @@ y_test =torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
 
 ## Scaling is done or else gradients will explode
 
+class Housing(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(8, 128  # Wide layer to capture complex patterns
+            nn.ReLU(), # ReLU activation for non-linearity
+
+            nn.Linear(128, 64),
+            nn.ReLU(),
+
+            nn.Linear(64, 32),
+            nn.ReLU(),
+
+            nn.Linear(32, 1)
+        )
+
+    def forward(self, x):
+        return self.net(x)
+    
