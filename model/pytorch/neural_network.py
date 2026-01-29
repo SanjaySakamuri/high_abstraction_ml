@@ -85,6 +85,7 @@ def train_epoch(model, loader):
     preds = model(Xb)
     loss = criterion(preds, yb)
     loss.backward()
+    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0) # cap gradient size to prevent exploding updates
     optimizer.step()
     total_loss += loss.item() * len(Xb)
 
@@ -108,4 +109,3 @@ for epoch in range(30):
 
   if epoch % 5 == 0:
     print(f"Epoch {epoch:02d} | Train RMSE: {train_mse**0.5:.2f} | Test RMSE: {test_mse**0.5:.2f}")
-
