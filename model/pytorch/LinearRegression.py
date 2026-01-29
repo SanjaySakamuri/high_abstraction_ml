@@ -67,7 +67,7 @@ model = LinearRegressionModel(n_features=X_train.shape[1])
 # 5. Loss & Optimizer
 
 criterion = nn.MSELoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.01) # Lower epochs, faster convergence, better minima
 
 
 # 6. Training Loop (Explicit)
