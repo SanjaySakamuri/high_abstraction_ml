@@ -33,7 +33,7 @@ class HousingNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(8, 128),  #Wide layer to capture complex patterns
+            nn.Linear(8, 128),  #Wide layer to capture complex patterns # 256 makes the results better. Maybe or maynot be a true value..
             nn.ReLU(), # ReLU activation for non-linearity
 
             nn.Linear(128, 64),
