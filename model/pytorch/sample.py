@@ -48,3 +48,7 @@ def amp_train_step(model, batch, optimizer, criterion, device):
     scaler.update()
 
     return loss.item()
+def custom_loss(logits, targets, alpha=0.01):
+    ce = F.cross_entropy(logits, targets)
+    reg = torch.mean(torch.norm(logits, dim=1))
+    return ce + alpha * reg
