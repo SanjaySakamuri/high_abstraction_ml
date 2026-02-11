@@ -28,3 +28,23 @@ def evaluate(model, loader, device):
         total += y.size(0)
 
     return correct / total
+
+
+scaler = torch.cuda.amp.GradScaler()
+
+def amp_train_step(model, batch, optimizer, criterion, device):
+    model.train()
+    x, y = batch
+    x, y = x.to(device), y.to(device)
+
+    optimizer.zero_grad()
+
+    with torch.cuda.amp.autocast():
+        logits = model(x)
+        loss = criterion(logits, y)
+
+    scaler.scale(loss).backward()
+    scaler.step(optimizer)
+    scaler.update()
+
+    return loss.item()
