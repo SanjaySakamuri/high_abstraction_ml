@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.datasets import fetch_openml
+from sklearn.model_selection import cross_val_score
 
 
 # Load the House Prices dataset from OpenML as a pandas DataFrame
