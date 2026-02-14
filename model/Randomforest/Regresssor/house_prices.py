@@ -1,66 +1,50 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import mean_squared_error
 from sklearn.datasets import fetch_openml
-from sklearn.model_selection import cross_val_score
 
-
-# Load the House Prices dataset from OpenML as a pandas DataFrame
 data = fetch_openml(name="house_prices", as_frame=True)
 
-# Feature matrix (X): all input columns describing the houses
 X = data.data
-
-# Target vector (y): house prices; cast to float for numeric computation
 y = data.target.astype(np.float32)
+y = np.log1p(y)
 
-
-# Replace missing numeric values with the column median
-# (simple, robust baseline imputation)
 X = X.fillna(X.median(numeric_only=True))
-
-# Convert categorical (string) columns into numeric one-hot encoded columns
-# Example: Neighborhood = ['NAmes', 'CollgCr'] → Neighborhood_NAmes, Neighborhood_CollgCr
-# drop_first=True avoids redundant columns and reduces multicollinearity
 X = pd.get_dummies(X, drop_first=True)
 
-# Split data into training and test sets
-# Training set: used to fit the model
-# Test set: used only to evaluate performance
 X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.20,   # 20% held out for evaluation
-    random_state=42   # fixed seed for reproducibility
+    X, y, test_size=0.20, random_state=42
 )
 
-# Random Forest regression model
-# - n_estimators: number of trees
-# - max_depth: limits tree complexity to reduce overfitting
-# - min_samples_leaf: enforces minimum samples per leaf for smoother predictions
 model = RandomForestRegressor(
-    n_estimators=500,
-    max_depth=10,
-    min_samples_leaf=5,
+    n_estimators=1000,
+    max_depth=None,
+    min_samples_leaf=2,
+    max_features="sqrt",
+    bootstrap=True,
+    oob_score=True,
     random_state=42,
-    n_jobs=-1         # use all CPU cores
+    n_jobs=-1
 )
 
-# Train the model on the training data
+cv_scores = cross_val_score(
+    model, X, y, cv=5,
+    scoring="neg_mean_squared_error",
+    n_jobs=-1
+)
+
+print("CV RMSE (log scale):", np.mean(np.sqrt(-cv_scores)))
+
 model.fit(X_train, y_train)
 
-# Generate predictions for unseen test data
-y_pred = model.predict(X_test)
+y_pred_log = model.predict(X_test)
 
+y_test_actual = np.expm1(y_test)
+y_pred_actual = np.expm1(y_pred_log)
 
-# Mean Squared Error: average of squared prediction errors
-mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mean_squared_error(y_test_actual, y_pred_actual))
 
-# Root Mean Squared Error: error in the same unit as the target (dollars)
-rmse = np.sqrt(mse)
-
-print(f"RMSE: {rmse:.4f}")
+print("Test RMSE (dollar scale):", rmse)
+print("OOB R^2:", model.oob_score_)
