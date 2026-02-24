@@ -1,5 +1,6 @@
 import torch
 # Input and target
+
 x = torch.tensor([2.0])
 y_true = torch.tensor([8.0])
 
@@ -18,3 +19,13 @@ loss.backward()
 
 print("Gradienty of w:", w.grad)  # Gradient of w
 print("Gradienty of b:", b.grad)  # Gradient of b
+
+learning_rate = 0.1
+
+with torch.no_grad(): # Disable gradient tracking for the update step
+    w -= learning_rate * w.grad # Update w
+    b -= learning_rate * b.grad  # Update b
+
+# Clear gradients for the next iteration
+w.grad_zero_()
+b.grad_zero_()
