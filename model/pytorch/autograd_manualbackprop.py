@@ -27,5 +27,7 @@ with torch.no_grad(): # Disable gradient tracking for the update step
     b -= learning_rate * b.grad  # Update b
 
 # Clear gradients for the next iteration
-w.grad_zero_()
-b.grad_zero_()
+w.grad.zero_()
+b.grad.zero_()
+
+print(loss.grad_fn)  # Should be None, as loss is a scalar and does not have a gradient function
