@@ -24,3 +24,17 @@ class Adam(Optimizer):
             raise ValueError("Invalid beta1 parameter")
         if not 0.0 <= betas[1] < 1.0:
             raise ValueError("Invalid beta2 parameter")
+
+        defaults = dict(lr=lr, betas=betas, eps=eps, weight_decay=weight_decay)
+        super(Adam, self).__init__(params, defaults)
+
+    @torch.no_grad()
+    def step(self, closure=None):
+        """
+        Performs a single optimization step.
+        """
+
+        loss = None
+        if closure is not None:
+            with torch.enable_grad():
+                loss = closure()
