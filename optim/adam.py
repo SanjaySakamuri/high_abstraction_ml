@@ -38,3 +38,21 @@ class Adam(Optimizer):
         if closure is not None:
             with torch.enable_grad():
                 loss = closure()
+
+        for group in self.param_groups:
+            for p in group["params"]:
+                if p.grad is None:
+                    continue
+
+                grad = p.grad
+
+                if grad.is_sparse:
+                    raise RuntimeError("Adam does not support sparse gradients")
+
+                state = self.state[p]
+
+                # State initialization
+                if len(state) == 0:
+                    state["step"] = 0
+                    state["exp_avg"] = torch.zeros_like(p)
+                    state["exp_avg_sq"] = torch.zeros_like(p)
