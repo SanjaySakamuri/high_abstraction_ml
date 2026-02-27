@@ -32,7 +32,7 @@ test_ds = MSDDataset(X_test, y_test)
 
 val_size = int(0.1 * len(train_full_ds))
 train_size = len(train_full_ds) - val_size
-train_ds, val_ds = random_split(train_full_ds, [train_size, val_size])  # FIX: added proper validation split
+train_ds, val_ds = random_split(train_full_ds, [train_size, val_size])
 
 train_loader = DataLoader(train_ds, batch_size=512, shuffle=True)
 val_loader = DataLoader(val_ds, batch_size=1024)
@@ -45,12 +45,18 @@ class MSDNet(nn.Module):
             nn.Linear(input_dim, 256),
             nn.BatchNorm1d(256),
             nn.ReLU(),
+            nn.Dropout(0.3),  # ENHANCEMENT: Added dropout to improve generalization
+
             nn.Linear(256, 128),
             nn.BatchNorm1d(128),
             nn.ReLU(),
+            nn.Dropout(0.3),  # ENHANCEMENT: Additional regularization layer
+
             nn.Linear(128, 64),
             nn.BatchNorm1d(64),
             nn.ReLU(),
+            nn.Dropout(0.2),  # ENHANCEMENT: Regularization before final layer
+
             nn.Linear(64, 1)
         )
 
@@ -62,7 +68,7 @@ model = MSDNet(input_dim=90)
 criterion = nn.MSELoss()
 optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4, weight_decay=1e-4)
 
-scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(  # FIX: adaptive learning rate scheduler
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
     optimizer,
     mode="min",
     factor=0.5,
@@ -92,12 +98,11 @@ def eval_epoch(model, loader):
             total_loss += loss.item() * len(Xb)
     return total_loss / len(loader.dataset)
 
-for epoch in range(30):
+for epoch in range(40):
     train_mse = train_epoch(model, train_loader)
     val_mse = eval_epoch(model, val_loader)
-    scheduler.step(val_mse)  # FIX: scheduler now uses validation loss
-    if epoch % 5 == 0:
-        print(f"Epoch {epoch:02d} | Train RMSE: {train_mse**0.5:.2f} | Val RMSE: {val_mse**0.5:.2f}")
+    scheduler.step(val_mse)
+    print(f"Epoch {epoch:02d} | Train RMSE: {train_mse**0.5:.3f} | Val RMSE: {val_mse**0.5:.3f}")
 
 test_mse = eval_epoch(model, test_loader)
-print(f"Final Test RMSE: {test_mse**0.5:.2f}")
+print(f"Final Test RMSE: {test_mse**0.5:.3f}")
