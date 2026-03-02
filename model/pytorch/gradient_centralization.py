@@ -39,3 +39,14 @@ class MLP(nn.Module):
         
 model = MLP()
 
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model.parameters(), lr=0.01)
+
+# 3. Gradient Centralization
+
+def gradient_centralization(model):
+    for param in model.parameters():
+         if param.grad is not None and len(param.grad.shape) > 1:
+              grad = param.grad
+              grad_mean = grad.mean(dim=tuple(range(1, grad.dim())), keepdim=True)
+              
