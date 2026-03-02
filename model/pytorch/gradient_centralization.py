@@ -19,7 +19,7 @@ X = torch.tensor(X, dtype=torch.float32)
 y = torch.tensor(y, dtype=torch.long)
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0., random_state=42
+    X, y, test_size=0.2, random_state=42
 )
 
 
@@ -46,10 +46,12 @@ optimizer = optim.SGD(model.parameters(), lr=0.01)
 
 def gradient_centralization(model):
     for param in model.parameters():
-         if param.grad is not None and len(param.grad.shape) > 1:
-              grad = param.grad
-              grad_mean = grad.mean(dim=tuple(range(1, grad.dim())), keepdim=True)
-
+        if param.grad is not None and len(param.grad.shape) > 1:
+            grad_mean = param.grad.mean(
+                dim=tuple(range(1, param.grad.dim())),
+                keepdim=True
+            )
+            param.grad -= grad_mean
 # 4. Training Loop
 
 epochs = 30
@@ -72,5 +74,4 @@ for epoch in range(epochs):
           test_outputs = model(X_test)
           preds = torch.argmax(test_outputs, dim=1)
           accuracy = (preds == y_test).float().mean()
-        
-    print(f"Epoch {epoch+1}/{epochs}, Loss: {loss.item():.4f}, Test Accuracy: {accuracy.item():.4f}")
+          print(f"Epoch {epoch+1}/{epochs}, Loss: {loss.item():.4f}, Test Accuracy: {accuracy.item():.4f}")
