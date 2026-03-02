@@ -49,4 +49,28 @@ def gradient_centralization(model):
          if param.grad is not None and len(param.grad.shape) > 1:
               grad = param.grad
               grad_mean = grad.mean(dim=tuple(range(1, grad.dim())), keepdim=True)
-              
+
+# 4. Training Loop
+
+epochs = 30
+for epoch in range(epochs):
+     model.train()
+
+     optimizer.zero_grad()
+     outputs = model(X_train)
+     loss = criterion(outputs, y_train)
+     loss.backward()
+
+     # Apply Gradient Centralization
+     gradient_centralization(model)
+
+     optimizer.step()
+
+     # Evaluation
+     model.eval()
+     with torch.no_grad():
+          test_outputs = model(X_test)
+          preds = torch.argmax(test_outputs, dim=1)
+          accuracy = (preds == y_test).float().mean()
+        
+    print(f"Epoch {epoch+1}/{epochs}, Loss: {loss.item():.4f}, Test Accuracy: {accuracy.item():.4f}")
