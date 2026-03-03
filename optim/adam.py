@@ -65,7 +65,7 @@ class Adam(Optimizer):
                 step = state["step"]
 
                 if group["weight_decay"] != 0:
-                    grad = grad.add(p, alpha=group["weight_decay"])
+                    p.mul_(1 - group["lr"] * group["weight_decay"])
 
                 # Update biased first moment estimate
                 exp_avg.mul_(beta1).add_(grad, alpha=1 - beta1)
