@@ -18,3 +18,29 @@ class LogisticRegression(nn.Module):
     def forward(self, x):
         logits = self.linear(x)
         return logits 
+    
+# Training Function
+
+def train_epoch(model, dataloader, criterion, optimizer, device):
+    
+    model.train()
+    total_loss = 0
+
+    for X,y in dataloader:
+
+        X = X.to(device)
+        y = y.to(device).float().view(-1, 1)
+
+        optimizer.zero_grad()
+
+        logits = model(X)
+
+        loss = criterion(logits, y)
+        
+        loss.backward()
+
+        optimizer.step()
+
+        total_loss += loss.item()
+
+    return total_loss / len(dataloader)
