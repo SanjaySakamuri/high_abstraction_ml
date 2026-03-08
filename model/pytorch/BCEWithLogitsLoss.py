@@ -44,3 +44,29 @@ def train_epoch(model, dataloader, criterion, optimizer, device):
         total_loss += loss.item()
 
     return total_loss / len(dataloader)
+
+def evaluate(model, dataloader, device):
+
+    model.eval()
+
+    correct = 0
+    total = 0
+
+    with torch.no_grad():
+
+        for X, y in dataloader:
+
+            X = X.to(device)
+            y = y.to(device)
+
+            logits = model(X)
+
+            probs = torch.sigmoid(logits)
+
+            preds = (probs > 0.5).long()
+
+            correct += (preds.view(-1) == y).sum().item()
+            total += y.size(0)
+
+    return correct / total
+# to do
