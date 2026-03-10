@@ -13,13 +13,13 @@ def set_seed(seed=42):
 
 # Logistic Regression Model
 class LogisticRegression(nn.Module):
+
     def __init__(self, input_dim):
         super().__init__()
         self.linear = nn.Linear(input_dim, 1)
 
     def forward(self, x):
-        logits = self.linear(x)
-        return logits 
+        return self.linear(x)
     
 # Training Function
 
