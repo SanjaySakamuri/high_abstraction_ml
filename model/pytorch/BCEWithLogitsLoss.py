@@ -5,9 +5,11 @@ from torch.utils.data import DataLoader, TensorDataset
 
 # Reproducibility
 
-def set_seed(seed):
+def set_seed(seed=42):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 # Logistic Regression Model
 class LogisticRegression(nn.Module):
