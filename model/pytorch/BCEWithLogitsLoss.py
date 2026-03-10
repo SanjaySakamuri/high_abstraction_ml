@@ -63,9 +63,7 @@ def evaluate(model, dataloader, device):
 
             logits = model(X)
 
-            probs = torch.sigmoid(logits)
-
-            preds = (probs > 0.5).long()
+            preds = (logits > 0).long()
 
             correct += (preds.view(-1) == y).sum().item()
             total += y.size(0)
