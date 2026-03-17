@@ -32,6 +32,38 @@ criterion = nn.BCELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.01)  # ← learning rate
 
 epochs = 100
+for epoch in range(epochs):
+
+    model.train()
+    optimizer.zero_grad()
+
+    outputs = model(X_train)
+    loss = criterion(outputs, y_train)
+
+    loss.backward()
+    optimizer.step()
+
+    train_losses.append(loss.item())
+
+    model.eval()
+    with torch.no_grad():
+        test_outputs = model(X_test)
+        test_loss = criterion(test_outputs, y_test)
+
+    test_losses.append(test_loss.item())
+
+    if epoch % 10 == 0:
+        print(f"Epoch {epoch}: Train Loss={loss.item():.4f}, Test Loss={test_loss.item():.4f}")
+
 
 train_losses = []
 test_losses = []
+
+plt.figure()
+plt.plot(train_losses, label="Train Loss")
+plt.plot(test_losses, label="Test Loss")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.title("Train vs Test Loss")
+plt.legend()
+plt.show()
