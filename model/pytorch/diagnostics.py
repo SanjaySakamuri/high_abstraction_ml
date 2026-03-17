@@ -67,3 +67,13 @@ plt.ylabel("Loss")
 plt.title("Train vs Test Loss")
 plt.legend()
 plt.show()
+
+
+'''
+Note :
+lr = 0.1   # unstable, oscillating
+lr = 0.01  # good
+lr = 0.0001 # very slow learning
+
+May vary depending upon the dataset and model
+'''
