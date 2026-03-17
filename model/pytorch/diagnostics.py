@@ -27,3 +27,11 @@ class SimpleNN(nn.Module):
         return self.net(x)
 
 model = SimpleNN()
+
+criterion = nn.BCELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.01)  # ← learning rate
+
+epochs = 100
+
+train_losses = []
+test_losses = []
