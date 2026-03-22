@@ -58,3 +58,49 @@ class NCF(nn.Module):
         out = self.fc_layers(x)
 
         return out.squeeze()
+    
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+model = NCF(num_users, num_items).to(device)
+
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+def train(model, loader):
+    model.train()
+    total_loss = 0
+
+    for user, item, rating in loader:
+        user = user.to(device)
+        item = item.to(device)
+        rating = rating.to(device)
+
+        optimizer.zero_grad()
+
+        predictions = model(user, item)
+        loss = criterion(predictions, rating)
+
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+    return total_loss / len(loader)
+
+def evaluate(model, loader):
+    model.eval()
+    total_loss = 0
+
+    with torch.no_grad():
+        for user, item, rating in loader:
+            user = user.to(device)
+            item = item.to(device)
+            rating = rating.to(device)
+
+            predictions = model(user, item)
+            loss = criterion(predictions, rating)
+
+            total_loss += loss.item()
+
+    return total_loss / len(loader)
+
