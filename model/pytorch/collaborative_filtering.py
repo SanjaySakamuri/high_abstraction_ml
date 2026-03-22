@@ -16,3 +16,18 @@ data = {
     "item_id:": np.random.randint(0, num_items, 10000),
     "rating": np.random.randint(1, 6, 10000) # rating 1-5
 }
+
+df = pd.DataFrame(data)
+
+train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+
+class RecDataset(Dataset):
+    def __init__(self, df):
+        self.users = torch.tensor(df["user_id"].values, dtype=torch.long)
+        self.items = torch.tensor(df["item_id"].values, dtype=torch.long)
+        self.ratings = torch.tensor(df["rating"].values, dtype=torch.float32)
+
+    def __len__(self):
+        return len(self.users)
+    def __getitem__(self, idx):
+        return self.users[idx], self.items[idx], self.ratings[idx]
