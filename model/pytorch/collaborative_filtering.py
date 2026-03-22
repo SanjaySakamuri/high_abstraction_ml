@@ -31,3 +31,30 @@ class RecDataset(Dataset):
         return len(self.users)
     def __getitem__(self, idx):
         return self.users[idx], self.items[idx], self.ratings[idx]
+    
+train_dataset = RecDataset(train_df)
+test_dataset = RecDataset(test_df)
+
+class NCF(nn.Module):
+    def __init__(self, num_users, num_items, embedding_dim=32):
+        super(NCF, self).__init__()
+
+        self.user_embedding = nn.Embedding(num_users, embedding_dim)
+        self.item_embedding = nn.Embedding(num_items, embedding_dim)
+
+        self.fc_layers = nn.Sequential(
+            nn.Linear(embedding_dim * 2, 128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1)
+        )
+
+    def forward(self, user, item):
+        user_emb = self.user_embedding(user)
+        item_emb = self.item_embedding(item)
+
+        x = torch.cat([user_emb, item_emb], dim=1)
+        out = self.fc_layers(x)
+
+        return out.squeeze()
