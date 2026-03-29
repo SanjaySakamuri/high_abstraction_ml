@@ -12,3 +12,5 @@ class AdamW:
         self.v = [np.zeros_like(p) for p in params]
         self.t = 0
 
+    def step(self, grads):
+        self.t += 1
