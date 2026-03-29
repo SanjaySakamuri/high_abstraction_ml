@@ -28,3 +28,19 @@ class AdamW:
 
             # Decoupled weight decay
             p -= self.lr * self.wd * p
+
+'''
+decay = []
+no_decay = []
+
+for name, param in model.named_parameters():
+    if "bias" in name or "LayerNorm.weight" in name:
+        no_decay.append(param)
+    else:
+        decay.append(param)
+
+optimizer = torch.optim.AdamW([
+    {"params": decay, "weight_decay": 1e-2},
+    {"params": no_decay, "weight_decay": 0.0}
+], lr=1e-3)
+'''
