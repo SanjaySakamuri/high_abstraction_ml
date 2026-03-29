@@ -14,3 +14,11 @@ class AdamW:
 
     def step(self, grads):
         self.t += 1
+      for i, (p, g) in enumerate(zip(self.params, grads)):
+            # Update moments
+            self.m[i] = self.beta1 * self.m[i] + (1 - self.beta1) * g
+            self.v[i] = self.beta2 * self.v[i] + (1 - self.beta2) * (g ** 2)
+
+            # Bias correction
+            m_hat = self.m[i] / (1 - self.beta1 ** self.t)
+            v_hat = self.v[i] / (1 - self.beta2 ** self.t)
