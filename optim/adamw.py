@@ -22,3 +22,9 @@ class AdamW:
             # Bias correction
             m_hat = self.m[i] / (1 - self.beta1 ** self.t)
             v_hat = self.v[i] / (1 - self.beta2 ** self.t)
+          
+            # Adam update
+            p -= self.lr * m_hat / (np.sqrt(v_hat) + self.eps)
+
+            # Decoupled weight decay
+            p -= self.lr * self.wd * p
