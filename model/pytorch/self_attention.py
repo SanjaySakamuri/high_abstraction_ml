@@ -15,4 +15,9 @@ class SelfAttention(nn.Module):
       # Output
       self.W_o = nn.Linear(d_model, d_model)
 
+  def forward(self, x, mask=None, return_attention=False):
+    
+    Q = self.W_q(x)  # (B, T, D)
+    K = self.W_k(x)
+    V = self.W_v(x)
   
